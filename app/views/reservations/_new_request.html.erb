@@ -14,25 +14,32 @@
 <p>
   <h3>Equipment requested:</h3>
 </p>
-<%= simple_form_for @reservation do |f| %>
-  <p>
-    The following equipment will be requested for
-    <%= User.find(cart.reserver_id).name %>
-    from
-    <%= cart.start_date.to_s(:long) %> to
-    <%= cart.due_date.to_s(:long) %>:
-  </p>
-  <p>
-    <ul class="rounded-list">
-      <% cart.items.each do |model_id, quantity| %>
-        <li data-value="<%= quantity %>"><%= link_to EquipmentModel.find(model_id).name, EquipmentModel.find(model_id) %></li>
-      <% end %>
-    </ul>
-  </p>
 
-  <div class="well">
-    <%= markdown(@request_text) %>
-  </div>
+<p>
+  The following equipment will be requested for
+  <%= User.find(cart.reserver_id).name %>
+  from
+  <%= cart.start_date.to_s(:long) %> to
+  <%= cart.due_date.to_s(:long) %>:
+</p>
+<p>
+  <ul class="rounded-list">
+    <% cart.items.each do |model_id, quantity| %>
+      <li data-value="<%= quantity %>"><%= link_to EquipmentModel.find(model_id).name, EquipmentModel.find(model_id) %></li>
+    <% end %>
+  </ul>
+</p>
+
+<div class="well">
+  <%= markdown(@request_text) %>
+</div>
+<!-- edit reservation here -->
+  <%= render :partial => 'reservations/cart_dates' %>
+  <h3>Items</h3>
+  <%# list items in cart %>
+  <%= render :partial => 'reservations/list_items_in_cart' %>
+<!-- end -->
+<%= simple_form_for @reservation do |f| %>
   <div class="form-group text <%= 'error' if @notes_required %>">
     <%= f.label "Enter your comments here:" %>
     <%= f.input_field :notes, class: 'form-control', rows: 5 %>
