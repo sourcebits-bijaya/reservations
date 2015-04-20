@@ -8,6 +8,7 @@
 
 ### Added
 * Reservation flags ([see wiki](https://github.com/YaleSTC/reservations/wiki/Reservation-Flags))
+* Added quantity fields to cart items ([#1114](https://github.com/YaleSTC/reservations/issues/1114))
 
 ### Changed
 * Reservation approval status and status method are now consolidated into a status enum ([#462](https://github.com/YaleSTC/reservations/issues/462))
