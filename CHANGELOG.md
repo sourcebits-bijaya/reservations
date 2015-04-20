@@ -4,14 +4,18 @@
 
 ## v5.3.0 - 2015-05-11
 ### Fixed
-* Reservation scopes refactored ([#462](https://github.com/YaleSTC/reservations/issues/462))
+* Reservation scopes refactored ([#462](https://github.com/YaleSTC/reservations/issues/462)).
 
 ### Added
-* Reservation flags ([see wiki](https://github.com/YaleSTC/reservations/wiki/Reservation-Flags))
-* Added quantity fields to cart items ([#1114](https://github.com/YaleSTC/reservations/issues/1114))
+* Reservation flags ([see wiki](https://github.com/YaleSTC/reservations/wiki/Reservation-Flags)).
+* Added quantity fields to cart items ([#1114](https://github.com/YaleSTC/reservations/issues/1114)).
 
 ### Changed
-* Reservation approval status and status method are now consolidated into a status enum ([#462](https://github.com/YaleSTC/reservations/issues/462))
+* Reservation approval status and status method are now consolidated into a status enum ([#462](https://github.com/YaleSTC/reservations/issues/462)).
+
+## v5.2.2 - 2015-04-20
+### Fixed
+* Forgetting to check off the ToS checkbox during checkout no longer causes checkout to fail silently ([#1227](https://github.com/YaleSTC/reservations/issues/1227)).
 
 ## v5.2.1 - 2015-04-14
 ### Fixed
@@ -179,6 +183,10 @@
 * Added persistent flash for superusers in other view modes ([#974](https://github.com/YaleSTC/reservations/issues/974)).
 * Replaced Airbrake with Party Foul ([#501](https://github.com/YaleSTC/reservations/issues/501)).
 * The first user is now created as a superuser ([#753](https://github.com/YaleSTC/reservations/issues/753)).
+
+## v3.4.10 - 2015-04-20
+### Fixed
+* Forgetting to check off the ToS checkbox during checkout no longer causes checkout to fail silently ([#1227](https://github.com/YaleSTC/reservations/issues/1227)).
 
 ## v3.4.9 - 2015-03-16
 ### Fixed
