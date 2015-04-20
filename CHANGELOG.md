@@ -2,6 +2,15 @@
 * This file will be updated whenever a new release is put into production.
 * Any problems should be reported via the "report an issue" link in the footer of the application.
 
+## v5.3.0 - 2015-05-11
+### Fixed
+* Reservation scopes refactored ([#462](https://github.com/YaleSTC/reservations/issues/462))
+
+### Added
+* Reservation flags ([see wiki](https://github.com/YaleSTC/reservations/wiki/Reservation-Flags))
+
+### Changed
+* Reservation approval status and status method are now consolidated into a status enum ([#462](https://github.com/YaleSTC/reservations/issues/462))
 
 ## v5.2.1 - 2015-04-14
 ### Fixed
