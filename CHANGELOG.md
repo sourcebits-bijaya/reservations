@@ -12,6 +12,7 @@
 * Added integration tests for basic reservation actions and Rails Admin routes ([#416](https://github.com/YaleSTC/reservations/issues/416)).
 * Reservation flags ([see wiki](https://github.com/YaleSTC/reservations/wiki/Reservation-Flags), [#462](https://github.com/YaleSTC/reservations/issues/462)).
 * Added quantity fields to cart items ([#1114](https://github.com/YaleSTC/reservations/issues/1114)).
+* Checkout receipts are now sent automatically on checkout ([#1215](https://github.com/YaleSTC/reservations/issues/1215)).
 
 ### Changed
 * Reservation approval status and status method are now consolidated into a status enum ([#462](https://github.com/YaleSTC/reservations/issues/462)).
