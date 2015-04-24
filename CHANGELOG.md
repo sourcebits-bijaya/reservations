@@ -6,6 +6,7 @@
 ### Fixed
 * Fixed issues with reservation renewals and added tests ([#416](https://github.com/YaleSTC/reservations/issues/416), [#1218](https://github.com/YaleSTC/reservations/issues/1218)).
 * Reservation scopes refactored ([#462](https://github.com/YaleSTC/reservations/issues/462)).
+* Fixed broken calendar logic ([#1218](https://github.com/YaleSTC/reservations/issues/1218)).
 
 ### Added
 * Added integration tests for basic reservation actions and Rails Admin routes ([#416](https://github.com/YaleSTC/reservations/issues/416)).
