@@ -2,6 +2,70 @@
 * This file will be updated whenever a new release is put into production.
 * Any problems should be reported via the "report an issue" link in the footer of the application.
 
+
+## v5.2.1 - 2015-04-14
+### Fixed
+* Skipped authentication initializer when users table does not yet exist; resolves issue where new Heroku installation failed due to asset precompilation running before database migrations.
+* Added seed script gems to heroku group in the Gemfile; resolves regression due to [#1165](https://github.com/YaleSTC/reservations/issues/1165) ([#1226](https://github.com/YaleSTC/reservations/issues/1226)).
+
+## v5.2.0 - 2015-04-13
+### Fixed
+* Refactored qualifications logic from catalog views ([#980](https://github.com/YaleSTC/reservations/issues/980)).
+* Fixed broken pdf uploads on Firefox ([#1016](https://github.com/YaleSTC/reservations/issues/1016)).
+* Fixed user import for CAS and LDAP users ([#1094](https://github.com/YaleSTC/reservations/issues/1094)).
+* Rails Admin can now manipulate all important models in the database ([#1122](https://github.com/YaleSTC/reservations/issues/1122)).
+* Re-added links to flash messages ([#1124](https://github.com/YaleSTC/reservations/issues/1124)).
+* Fixed broken checkout / checkin procedures ([#1139](https://github.com/YaleSTC/reservations/issues/1139)).
+* 3rd party assets were moved to a separate directory ([#1142](https://github.com/YaleSTC/reservations/issues/1142)).
+* Application config settings now pre-check for existing configuration to prevent crashes when the configuration isn't initialized ([#1144](https://github.com/YaleSTC/reservations/issues/1144)).
+* EquipmentModels with uploaded documentation no longer crash ([#1181](https://github.com/YaleSTC/reservations/issues/1181)).
+* Banned users can no longer have reservations created for them or equipment checked out to them ([#1185](https://github.com/YaleSTC/reservations/issues/1185)).
+* Fixed broken view on equipment model import ([#1192](https://github.com/YaleSTC/reservations/issues/1192)).
+
+### Added
+* Added flash error when trying to access non-existent records ([#927](https://github.com/YaleSTC/reservations/issues/927)).
+* Added pending reservations table to equipment model view ([#987](https://github.com/YaleSTC/reservations/issues/987)).
+* Added table of equipment models to the category show view and improved the equipment model index table for admins ([#1009](https://github.com/YaleSTC/reservations/issues/1009)).
+* Added a [guide](https://github.com/YaleSTC/reservations/blob/master/CONTRIBUTING.md) for contributing to Reservations ([#1056](https://github.com/YaleSTC/reservations/issues/1056)).
+* Added more information to the EquipmentModel index page for checkout persons ([#1082](https://github.com/YaleSTC/reservations/issues/1082)).
+* Allowed switching between password and CAS authentication ([#1106](https://github.com/YaleSTC/reservations/issues/1106)).
+* Allowed users to be "remembered" when using password authentication ([#1109](https://github.com/YaleSTC/reservations/issues/1109)).
+
+### Changed
+* Added new logo and default favicon ([#194](https://github.com/YaleSTC/reservations/issues/194)).
+* Completely overhauled user emails ([#665](https://github.com/YaleSTC/reservations/issues/665), [#938](https://github.com/YaleSTC/reservations/issues/938)).
+* Renamed EquipmentObjects to EquipmentItems ([#1081](https://github.com/YaleSTC/reservations/issues/1081)).
+* Removed links to EquipmentItems index page because of performance issues ([#1082](https://github.com/YaleSTC/reservations/issues/1082)).
+* Removed seed script gems from default group in Gemfile ([#1165](https://github.com/YaleSTC/reservations/issues/1165)).
+
+
+## v5.1.0 - 2015-02-23
+### Fixed
+* Calendar views no longer overflow on some browsers ([#846](https://github.com/YaleSTC/reservations/issues/846)).
+* Date and time zone handling is now standardized; additionally, reservation start and due dates are now stored as `Date`s rather than as `DateTime`s ([#939](https://github.com/YaleSTC/reservations/issues/939)).
+* The handling of missed reservations was improved, and e-mails of missed open requests are no longer sent ([#1031](https://github.com/YaleSTC/reservations/issues/1031)).
+* The late checkin e-mail is no longer sent if the late fee due is zero ([#1064](https://github.com/YaleSTC/reservations/issues/1064)).
+* The extra 1px at the bottom of the navbar has been removed ([#1111](https://github.com/YaleSTC/reservations/issues/1111)).
+* Minor bugs with equipment import were fixed ([#1140](https://github.com/YaleSTC/reservations/issues/1140)).
+* Calendar cells can no longer be clicked on, preventing apparently incorrect cart updates ([#1152](https://github.com/YaleSTC/reservations/issues/1152)).
+
+### Added
+* Reservations is now set up for Heroku deployment (please see the [Deployment Guide](https://github.com/YaleSTC/reservations/wiki/Heroku-Deployment-Guide) for more information, [#275](https://github.com/YaleSTC/reservations/issues/275)).
+* There is now a badge on user profile pages indicating that they have open requests ([#1028](https://github.com/YaleSTC/reservations/issues/1028)).
+
+### Changed
+* Bootstrap was updated to v3.3 and the entire UI of the app was overhauled ([#245](https://github.com/YaleSTC/reservations/issues/245)).
+* The cart validations code was substantially refactored ([#1097](https://github.com/YaleSTC/reservations/issues/1097)).
+* The equipment item link on the reservation page now goes to the equipment item page instead of the equipment model page ([#1159](https://github.com/YaleSTC/reservations/issues/1159)).
+* The version of Rails was updated to 4.1.9 ([#600](https://github.com/YaleSTC/reservations/issues/600)).
+* All of the dependencies were updated to the latest versions and the Gemfile was cleaned up ([#245](https://github.com/YaleSTC/reservations/issues/245), [#600](https://github.com/YaleSTC/reservations/issues/600)).
+* Added a link to the reservation in emails ([#1102](https://github.com/YaleSTC/reservations/issues/1102)).
+
+### Removed
+* The `.env` file was removed from the repository; the `.env.example` file may be copied for local use ([#1104](https://github.com/YaleSTC/reservations/issues/1104)).
+* The `dynamic_form` gem was removed ([#1110](https://github.com/YaleSTC/reservations/issues/1110)).
+* The `yajl-ruby` gem was removed ([#600](https://github.com/YaleSTC/reservations/issues/600)).
+
 ## v5.0.0 - 2015-01-12
 ### Important
 *This release fundamentally changes how Reservations is configured (see the ([wiki](https://github.com/YaleSTC/reservations/wiki/Configuration)) for more details). You will likely have to rework how Reservations is deployed and hosted for it to work properly when updating to this version.*
@@ -105,6 +169,10 @@
 * Added persistent flash for superusers in other view modes ([#974](https://github.com/YaleSTC/reservations/issues/974)).
 * Replaced Airbrake with Party Foul ([#501](https://github.com/YaleSTC/reservations/issues/501)).
 * The first user is now created as a superuser ([#753](https://github.com/YaleSTC/reservations/issues/753)).
+
+## v3.4.9 - 2015-03-16
+### Fixed
+* Banned users can no longer have reservations created for them or equipment checked out to them ([#1185](https://github.com/YaleSTC/reservations/issues/1185)).
 
 ## v3.4.8 - 2014-10-26
 ### Fixed

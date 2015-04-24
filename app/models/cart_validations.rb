@@ -3,13 +3,14 @@ module CartValidations
   # queries as possible. Often it seems that a scope could be used but
   # it is important to remember that Rails lazy-loads the database calls
   #
-  def validate_all(renew = false) # rubocop:disable AbcSize
+  def validate_all(renew = false) # rubocop:disable AbcSize, MethodLength
     # 2 queries for every equipment model in the cart because of num_available
     # plus about 8 extra
     #
     # if passed with true argument doesn't run validations that should be
     # skipped when validating renewals
     errors = []
+    errors += check_banned
     errors += check_date_blackout(start_date, 'start')
     errors += check_date_blackout(due_date, 'end')
     errors += check_overdue_reservations unless renew
@@ -17,14 +18,13 @@ module CartValidations
     errors += check_max_cat
     errors += check_cookie_limit
 
-    user_reservations = Reservation.for_reserver(reserver_id).not_returned.all
+    user_reservations = Reservation.for_reserver(reserver_id).active.all
     models = get_items
 
     errors += check_requirements(models)
 
     source_res =
-      Reservation.not_returned
-      .where(equipment_model_id: items.keys)
+      Reservation.where(equipment_model_id: items.keys)
       .reserved_in_date_range(start_date, due_date).all
 
     models.each do |model, quantity|
@@ -33,6 +33,16 @@ module CartValidations
       errors += check_should_be_renewed(user_reservations, model, start_date)
     end
     errors.uniq.reject(&:blank?)
+  end
+
+  def check_banned
+    errors = []
+    reserver = User.find_by(id: reserver_id)
+    if reserver && reserver.role == 'banned'
+      errors << 'The reserver is banned and cannot reserve additional '\
+        'equipment.'
+    end
+    errors
   end
 
   def check_date_blackout(date, verb)
@@ -95,7 +105,7 @@ module CartValidations
     # EMs doesn't exceed any limits
 
     count_hash = get_items
-    relevant = Reservation.for_reserver(reserver_id).not_returned
+    relevant = Reservation.for_reserver(reserver_id).active
                .includes(:equipment_model).all
     check_max_items(count_hash, relevant, :number_for_model_on_date)
   end
@@ -110,7 +120,7 @@ module CartValidations
       cat_hash[ems[index].category] ||= 0
       cat_hash[ems[index].category] += q
     end
-    relevant = Reservation.for_reserver(reserver_id).not_returned
+    relevant = Reservation.for_reserver(reserver_id).active
                .with_categories.all
     check_max_items(cat_hash, relevant, :number_for_category_on_date)
   end
@@ -118,7 +128,7 @@ module CartValidations
   def check_availability(model = EquipmentModel.find(items.keys.first),
                          quantity = 1,
                          source_res = Reservation.for_eq_model(self)
-                           .not_returned.all)
+                           .active.all)
 
     # checks that the model is available for the given quantity given the
     # existence of the source_reservations
@@ -163,7 +173,7 @@ module CartValidations
   end
 
   def check_should_be_renewed(user_reservations = Reservations
-    .for_reserver(reserver).not_returned,
+    .for_reserver(reserver).active,
                               model = EquipmentModel.find(items.keys.first),
                               start_date = self.start_date)
     # if the user reservations array has a reservation for the model that

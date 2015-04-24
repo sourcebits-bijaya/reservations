@@ -44,6 +44,8 @@ DEFAULT_MSGS = File.join(Rails.root, 'db', 'default_messages')
 TOS_TEXT = File.read(File.join(DEFAULT_MSGS, 'tos_text'))
 UPCOMING_CHECKIN_RES_EMAIL = File.read(File.join(DEFAULT_MSGS,
                                                  'upcoming_checkin_email'))
+UPCOMING_CHECKOUT_RES_EMAIL = File.read(File.join(DEFAULT_MSGS,
+                                                  'upcoming_checkout_email'))
 OVERDUE_RES_EMAIL_BODY = File.read(File.join(DEFAULT_MSGS, 'overdue_email'))
 DELETED_MISSED_RES_EMAIL = File.read(File.join(DEFAULT_MSGS,
                                                'deleted_missed_email'))
@@ -140,18 +142,18 @@ def includes?(array_of_ranges, elem)
   end
 end
 
-def generate_user
+def generate_user # rubocop:disable AbcSize
   User.create do |u|
     u.first_name = Faker::Name.first_name
     u.last_name = Faker::Name.last_name
     u.nickname = Faker::Name.first_name
     u.phone = Faker::PhoneNumber.short_phone_number
     u.email = Faker::Internet.email
-    u.username = Faker::Internet.user_name
+    u.cas_login = Faker::Internet.user_name if ENV['CAS_AUTH']
     u.affiliation = 'YC ' + %w(BK BR CC DC ES JE MC PC SM SY TC TD).sample +
       ' ' + rand(2012..2015).to_s
     u.role = %w(normal checkout).sample
-    u.username = u.email unless ENV['CAS_AUTH']
+    u.username = ENV['CAS_AUTH'] ? u.cas_login : u.email
   end
 end
 
@@ -195,14 +197,14 @@ def generate_em
 end
 # rubocop:enable AbcSize
 
-def generate_eo
-  EquipmentObject.create! do |eo|
-    eo.name = "Number #{(0...3).map { 65.+(rand(25)).chr }.join}" +
+def generate_ei
+  EquipmentItem.create! do |ei|
+    ei.name = "Number #{(0...3).map { 65.+(rand(25)).chr }.join}" +
       rand(1..9001).to_s
-    eo.serial = (0...8).map { 65.+(rand(25)).chr }.join
-    eo.active = true
-    eo.equipment_model_id = EquipmentModel.all.sample.id
-    eo.notes = ''
+    ei.serial = (0...8).map { 65.+(rand(25)).chr }.join
+    ei.active = true
+    ei.equipment_model_id = EquipmentModel.all.sample.id
+    ei.notes = ''
   end
 end
 
@@ -244,8 +246,11 @@ end
 def mark_checked_in(res, checkout_length)
   return unless res.checked_out
   if rand < OVERDUE_CHANCE
+    res.overdue = true
+    res.status = 'checked_out'
     res.checked_in = nil
   else
+    res.status = 'returned'
     res.checked_in = time_rand(res.checked_out, res.checked_out.next_week,
                                checkout_length).to_datetime
     res.checkin_handler_id = User.where('role = ? OR role = ? OR role = ?',
@@ -257,9 +262,11 @@ end
 def mark_checked_out(res)
   if rand < MISSED_CHANCE
     res.checked_out = nil
+    res.status = 'missed'
   else
+    res.status = 'checked_out'
     res.checked_out = res.start_date
-    res.equipment_object = res.equipment_model.equipment_objects.all.sample
+    res.equipment_item = res.equipment_model.equipment_items.all.sample
     res.checkout_handler_id = User.where('role = ? OR role = ? OR role = ?',
                                          'checkout', 'admin', 'superuser'
                                         ).all.sample.id
@@ -280,6 +287,7 @@ def generate_reservation
   count = 0
   while count < MAX_TRIES
     res = Reservation.new
+    res.status = 'reserved'
     res.reserver_id = User.all.sample.id
     res.equipment_model = EquipmentModel.all.sample
     res.start_date = time_rand(Time.zone.now,
@@ -342,8 +350,8 @@ if User.where('role = ?', 'superuser').empty?
 
   if MINIMAL || SEMI
     if ENV['CAS_AUTH']
-      printf 'CAS '
-      prompt_field(u, :username)
+      prompt_field(u, :cas_login)
+      u.username = u.cas_login
     else
       u.username = u.email
       u.password = 'passw0rd'
@@ -359,8 +367,8 @@ if User.where('role = ?', 'superuser').empty?
     prompt_field(u, :email)
     prompt_field(u, :affiliation)
     if ENV['CAS_AUTH']
-      printf 'CAS '
-      prompt_field(u, :username)
+      prompt_field(u, :cas_login)
+      u.username = u.cas_login
     else
       u.username = u.email
       u.save
@@ -390,6 +398,7 @@ if AppConfig.count == 0
   ac.default_per_cat_page = 10
   ac.request_text = ''
   ac.upcoming_checkin_email_body = UPCOMING_CHECKIN_RES_EMAIL
+  ac.upcoming_checkout_email_body = UPCOMING_CHECKOUT_RES_EMAIL
   ac.overdue_checkin_email_body = OVERDUE_RES_EMAIL_BODY
   ac.save
 
@@ -431,8 +440,8 @@ end
 
 unless EquipmentModel.count == 0
 
-  n = MINIMAL ? 50 : ask_for_records('EquipmentObject')
-  generate_objs(:generate_eo, 'equipment_object', n)
+  n = MINIMAL ? 50 : ask_for_records('EquipmentItem')
+  generate_objs(:generate_ei, 'equipment_item', n)
 
   n = MINIMAL ? 0 : ask_for_records('Requirement')
   generate_objs(:generate_req, 'requirement', n)
@@ -454,7 +463,7 @@ generate_objs(:generate_blackout, 'blackout', n)
 # Reservation generation
 # ============================================================================
 
-unless EquipmentObject.count == 0
+unless EquipmentItem.count == 0
   n = MINIMAL ? 10 : ask_for_records('Reservation')
   generate_objs(:generate_reservation, 'reservation', n)
 end

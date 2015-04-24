@@ -24,10 +24,6 @@ gem 'whenever', '~> 0.9.4'
 # administrative panel
 gem 'rails_admin', '~> 0.6.6'
 
-# seed script gems
-gem 'ffaker', '~> 1.32.1'
-gem 'ruby-progressbar', '~> 1.7.1'
-
 # ldap integration
 gem 'net-ldap', '~> 0.11'
 
@@ -46,6 +42,7 @@ gem 'rails4-autocomplete', '~> 1.1.1'
 gem 'select2-rails', '~> 3.5.9.3'
 gem 'kaminari', '~> 0.16.3'
 gem 'draper', '~> 1.4.0'
+gem 'inline_svg'
 
 # forms / formatting
 gem 'simple_form', '~> 3.1.0'
@@ -53,6 +50,13 @@ gem 'cocoon', '~> 1.2.6'
 gem 'redcarpet', '~> 3.2.2'
 
 group :development, :test do
+  gem 'pry', '~> 0.10.1'
+  gem 'pry-rails', '~> 0.3.3'
+  gem 'pry-byebug', '~> 3.0.1'
+  gem 'pry-stack_explorer', '~> 0.4.9.2'
+  gem 'pry-remote', '~> 0.1.8'
+  gem 'letter_opener', '~> 1.3.0'
+  gem 'letter_opener_web', '~> 1.3.0'
   gem 'factory_girl_rails', '~> 4.5.0'
   gem 'rspec-rails', '~> 3.2.0'
   gem 'shoulda-matchers', '~> 2.8.0'
@@ -72,6 +76,12 @@ group :development, :test do
   gem 'rubocop', '~> 0.29.1', require: false
 end
 
+group :development, :test, :heroku do
+  # seed script gems
+  gem 'ffaker', '~> 1.32.1', require: false
+  gem 'ruby-progressbar', '~> 1.7.1', require: false
+end
+
 # assets
 gem 'sass-rails', '~> 5.0.1'
 gem 'coffee-rails', '~> 4.1.0'
@@ -81,13 +91,6 @@ gem 'font-awesome-rails', '~> 4.3.0'
 
 group :development do
   gem 'thin', '~> 1.6.3'
-  gem 'pry', '~> 0.10.1'
-  gem 'pry-rails', '~> 0.3.3'
-  gem 'pry-byebug', '~> 3.0.1'
-  gem 'pry-stack_explorer', '~> 0.4.9.2'
-  gem 'pry-remote', '~> 0.1.8'
-  gem 'letter_opener', '~> 1.3.0'
-  gem 'letter_opener_web', '~> 1.3.0'
   gem 'rack-mini-profiler', '~> 0.9.2'
   gem 'bullet', '~> 4.14.4'
 end

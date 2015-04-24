@@ -36,7 +36,8 @@ namespace :app do
         email = STDIN.gets.chomp
         if ENV['CAS_AUTH']
           puts 'Username (i.e. NetID, ensure this is correct):'
-          username = STDIN.gets.chomp
+          cas_login = STDIN.gets.chomp
+          username = cas_login
         else
           username = email
           puts 'Password:'
@@ -54,6 +55,7 @@ namespace :app do
               u.last_name = last_name
               u.phone = phone
               u.email = email
+              u.cas_login = cas_login if ENV['CAS_AUTH']
               u.username = username
               u.affiliation = affiliation
               u.role = 'superuser'
@@ -102,7 +104,22 @@ namespace :app do
       "@equipment_list@\n\n"\
       'If you fail to return your equipment on time you will be subject to '\
       'a late fee of @late_fee@ per day. If you have lost the item you may '\
-      "additioally have to pay a replacement fee of @replacement_fee@.\n"\
+      "additionally have to pay a replacement fee of @replacement_fee@.\n"\
+      'Log in to Reservations to see if any of your items are eligible for '\
+      'renewal. If you have further questions feel free to contact an '\
+      "employee of @department_name@.\n\n"\
+      "Your reservation number is @reservation_id@.\n\n"\
+      "Thank you,\n"\
+      "@department_name@\n\n"\
+
+    upcoming_checkout_email_body =
+      "Dear @user@,\n\n"\
+      'Hey there, you have an upcoming reservation! You have reserved the '\
+      'following item(s), which will be available today:\n\n'\
+      "@equipment_list@\n\n"\
+      'If you fail to return your equipment on time you will be subject to '\
+      'a late fee of @late_fee@ per day. If you have lost the item you may '\
+      "additionally have to pay a replacement fee of @replacement_fee@.\n"\
       'Log in to Reservations to see if any of your items are eligible for '\
       'renewal. If you have further questions feel free to contact an '\
       "employee of @department_name@.\n\n"\
@@ -176,10 +193,12 @@ namespace :app do
             AppConfig.create! do |ac|
               ac.terms_of_service = terms_of_service_text
               ac.upcoming_checkin_email_active = false
+              ac.upcoming_checkout_email_active = false
               ac.reservation_confirmation_email_active = false
               ac.overdue_checkin_email_active = false
               ac.send_notifications_for_deleted_missed_reservations = false
               ac.upcoming_checkin_email_body = upcoming_checkin_email_body
+              ac.upcoming_checkout_email_body = upcoming_checkout_email_body
               ac.deleted_missed_reservation_email_body =
                 deleted_missed_reservation_email_body
               ac.overdue_checkin_email_body = overdue_checkin_email_body

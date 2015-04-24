@@ -1,5 +1,6 @@
 class ImportUsersController < ApplicationController
   include CsvImport
+  helper UsersHelper
 
   authorize_resource class: false
 
@@ -7,7 +8,7 @@ class ImportUsersController < ApplicationController
   # create/update a bunch of users, and it renders the 'imported' page.
   def import
     # initialize
-    file = params[:csv_upload] # the file object
+    file = params[:csv_upload] # the file item
     if file
       user_type = params[:user_type]
       overwrite = (params[:overwrite] == '1') # update existing users?
@@ -56,7 +57,8 @@ class ImportUsersController < ApplicationController
     end
 
     # make sure we have username data (otherwise all will always fail)
-    unless imported_users.first.keys.include?(:username)
+    unless imported_users.first.keys.include?(:username) ||
+           ENV['CAS_AUTH'].nil?
       flash[:error] = 'Unable to import CSV file. None of the users will be '\
         'able to log in without specifying \'username\' data.'
       redirect_to(:back) && return

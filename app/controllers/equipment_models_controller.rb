@@ -22,32 +22,31 @@ class EquipmentModelsController < ApplicationController
   # --------- end before filter methods --------- #
 
   def index
+    base = @category ? @category.equipment_models : EquipmentModel.all
     if params[:show_deleted]
-      @equipment_models =
-        @category ? @category.equipment_models : EquipmentModel.all
+      @equipment_models = base.includes(:reservations)
     else
-      @equipment_models =
-        @category ? @category.equipment_models.active : EquipmentModel.active
+      @equipment_models = base.includes(:reservations).active
     end
   end
 
-  def show
+  def show # rubocop:disable AbcSize, MethodLength
+    relevant_reservations = Reservation.active.for_eq_model(@equipment_model)
     @associated_equipment_models =
       @equipment_model.associated_equipment_models.sample(6)
 
     calendar_length = 1.month
 
-    @reservation_data =
-      Reservation.active.for_eq_model(@equipment_model).collect do |r|
-        if r.status == 'overdue'
-          end_date = Time.zone.today + calendar_length
-        else
-          end_date = r.due_date
-        end
-        { start: r.start_date, end: end_date }
-        # the above code mimics the current available? setup to show overdue
-        # equipment as permanently 'out'.
+    @reservation_data = relevant_reservations.collect do |r|
+      if r.overdue
+        end_date = Time.zone.today + calendar_length
+      else
+        end_date = r.due_date
       end
+      { start: r.start_date, end: end_date }
+      # the above code mimics the current available? setup to show overdue
+      # equipment as permanently 'out'.
+    end
 
     @blackouts = Blackout.active.collect do |b|
       { start: b.start_date, end: b.end_date }
@@ -55,9 +54,14 @@ class EquipmentModelsController < ApplicationController
 
     @date = Time.zone.today
     @date_max = @date + calendar_length - 1.week
-    @max = @equipment_model.equipment_objects.active.count
+    @max = @equipment_model.equipment_items.active.count
 
     @restricted = @equipment_model.model_restricted?(cart.reserver_id)
+
+    # For pending reservations table
+    @pending = relevant_reservations.reserved_in_date_range(Time.zone.today,
+                                                            Time.zone.today +
+                                                            8.days).reserved
   end
 
   def new
@@ -100,7 +104,11 @@ class EquipmentModelsController < ApplicationController
   def update
     delete_files
 
-    if @equipment_model.update_attributes(equipment_model_params)
+    eq_params = equipment_model_params
+    # correct for file type
+    eq_params[:documentation] = fix_content_type(eq_params[:documentation])
+
+    if @equipment_model.update_attributes(eq_params)
       # hard-delete any deleted checkin/checkout procedures
       delete_procedures(params, 'checkout')
       delete_procedures(params, 'checkin')
@@ -116,7 +124,7 @@ class EquipmentModelsController < ApplicationController
       flash[:notice] = 'Deactivation cancelled.'
       redirect_to @equipment_model
     elsif params[:deactivation_confirmed]
-      Reservation.for_eq_model(@equipment_model).each do |r|
+      Reservation.for_eq_model(@equipment_model).finalized.each do |r|
         r.archive(current_user, 'The equipment model was deactivated.')
           .save(validate: false)
       end
@@ -161,5 +169,19 @@ class EquipmentModelsController < ApplicationController
         params[:equipment_model][:checkout_procedures_attributes] if
         params[:equipment_model][:checkout_procedures_attributes]
     end
+  end
+
+  # from https://gist.github.com/cnk/4453c6e81837e8d38b7e
+  def fix_content_type(filedata)
+    return nil if filedata.blank?
+    # see what the unix file command thinks this is
+    if filedata.content_type == 'application/octect-stream'
+      filedata.content_type = type_from_file_command(filedata.path)
+    end
+    filedata
+  end
+
+  def type_from_file_command(file)
+    Paperclip::FileCommandContentTypeDetector.new(file).detect
   end
 end

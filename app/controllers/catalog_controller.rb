@@ -1,7 +1,8 @@
 class CatalogController < ApplicationController
   layout 'application_with_sidebar'
 
-  before_action :set_equipment_model, only: [:add_to_cart, :remove_from_cart]
+  before_action :set_equipment_model, only:
+    [:add_to_cart, :remove_from_cart, :edit_cart_item]
   skip_before_action :authenticate_user!, unless: :guests_disabled?
 
   # --------- before filter methods --------- #
@@ -26,8 +27,8 @@ class CatalogController < ApplicationController
     change_cart(:add_item, @equipment_model)
   end
 
-  def remove_from_cart
-    change_cart(:remove_item, @equipment_model)
+  def edit_cart_item
+    change_cart(:edit_cart_item, @equipment_model, params[:quantity].to_i)
   end
 
   def update_user_per_cat_page
@@ -47,8 +48,8 @@ class CatalogController < ApplicationController
       @equipment_model_results =
         EquipmentModel.active.catalog_search(params[:query])
       @category_results = Category.catalog_search(params[:query])
-      @equipment_object_results =
-        EquipmentObject.catalog_search(params[:query])
+      @equipment_item_results =
+        EquipmentItem.catalog_search(params[:query])
       prepare_catalog_index_vars(@equipment_model_results)
       render('search_results') && return
     end
@@ -73,8 +74,8 @@ class CatalogController < ApplicationController
   # or removes the equipment_model set from params{} in the before_filter.
   # Finally, it renders the root page and runs the javascript to update the
   # cart (or displays the appropriate errors)
-  def change_cart(action, item)
-    cart.send(action, item)
+  def change_cart(action, item, quantity = nil)
+    cart.send(action, item, quantity)
     errors = cart.validate_all
     flash[:error] = errors.join("\n")
     flash[:notice] = 'Cart updated.'

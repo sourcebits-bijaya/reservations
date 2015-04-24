@@ -7,7 +7,7 @@
       </span>
       <span class="icons">
         <h4>
-          <% if reservation.status == "overdue" %>
+          <% if reservation.overdue %>
             <i class="fa fa-exclamation-circle fa-lg overdue-icon"></i>
           <% end %>
           <i class="fa fa-check hidden check fa-lg"></i>
@@ -30,7 +30,7 @@
       <%= label_tag "reservations[#{reservation.id}][checkin?]" do %>
       <i class="fa fa-square-o c-box fa-lg"></i>
         <%= check_box_tag "reservations[#{reservation.id}][checkin?]", 1, false, class: "checkin-select hidden" %>
-        <%= reservation.equipment_object.name %>
+        <%= reservation.equipment_item.name %>
       <% end %>
 
     </div>

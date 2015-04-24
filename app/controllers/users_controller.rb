@@ -35,6 +35,9 @@ class UsersController < ApplicationController
   end
 
   def show
+    if @user.role == 'banned' && @user.id != current_user.id
+      flash[:error] = 'Please note that this user is banned.'
+    end
     @user_reservations = @user.reservations
     @all_equipment = Reservation.active.for_reserver(@user)
     @show_equipment = { checked_out:  @user_reservations.checked_out,
@@ -43,7 +46,8 @@ class UsersController < ApplicationController
                         past:         @user_reservations.returned,
                         past_overdue: @user_reservations.returned_overdue }
     @show_equipment[:missed] =
-      @user_reservations.missed unless AppConfig.first.res_exp_time
+      @user_reservations.missed unless AppConfig.check(:res_exp_time)
+    @has_pending = @user_reservations.requested.count > 0
   end
 
   def new # rubocop:disable all
@@ -90,7 +94,8 @@ class UsersController < ApplicationController
       # pull from our CAS hackery unless you're an admin/superuser creating a
       # new user
       unless current_user && can?(:manage, Reservation)
-        @user.username = session[:new_username]
+        @user.cas_login = session[:new_username]
+        @user.username = @user.cas_login
       end
     else
       # if not using CAS, just put the e-mail as the username

@@ -18,9 +18,9 @@ FactoryGirl.define do
       category { FactoryGirl.create(:category, max_per_user: 1) }
     end
 
-    factory :equipment_model_with_object do
+    factory :equipment_model_with_item do
       after(:create) do |model|
-        FactoryGirl.create(:equipment_object, equipment_model: model)
+        FactoryGirl.create(:equipment_item, equipment_model: model)
       end
     end
   end

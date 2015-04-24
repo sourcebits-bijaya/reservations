@@ -32,6 +32,11 @@ class ApplicationController < ActionController::Base
     redirect_to main_app.root_url
   end
 
+  rescue_from ActiveRecord::RecordNotFound do |_exception|
+    flash[:error] = 'Oops, you tried to go somewhere that doesn\'t exist.'
+    redirect_to main_app.root_url
+  end
+
   # -------- before_filter methods -------- #
 
   def app_setup_check
@@ -49,7 +54,7 @@ class ApplicationController < ActionController::Base
   end
 
   def seen_app_configs
-    return if AppConfig.first.viewed || current_user.nil?
+    return if AppConfig.check(:viewed) || current_user.nil?
     if can? :edit, :app_config
       flash[:notice] = 'Since this is your first time viewing the '\
         'application configurations, we recommend that you take some time '\
@@ -125,7 +130,7 @@ class ApplicationController < ActionController::Base
 
   # check to see if the guest user functionality is disabled
   def guests_disabled?
-    AppConfig.first && !AppConfig.first.enable_guests
+    !AppConfig.check(:enable_guests)
   end
 
   # check to see if we should skip authentication; either looks to see if the
@@ -214,6 +219,8 @@ class ApplicationController < ActionController::Base
 
     # create an hash of em id's as keys and their availability as the value
     @availability_hash = {}
+    # create a hash of em id's as keys and their qualifications as the value
+    @qualifications_hash = {}
 
     # first get an array of all the paginated ids
     id_array = []
@@ -221,21 +228,32 @@ class ApplicationController < ActionController::Base
       id_array << em.id
     end
 
-    # 1 query to grab all the active related equipment objects
-    eq_objects = EquipmentObject.active.where(equipment_model_id: id_array).all
+    # 1 query to grab all the active related equipment items
+    eq_items = EquipmentItem.active.where(equipment_model_id: id_array).all
 
     # 1 query to grab all the related reservations
     source_reservations =
-      Reservation.not_returned.where(equipment_model_id: id_array).all
+      Reservation.active.where(equipment_model_id: id_array).all
 
-    # build the hash using class methods that use 0 queries
+    # for getting qualifications associated between the model and the reserver
+    reserver = cart.reserver_id ? User.find(cart.reserver_id) : nil
+
     eq_models.each do |em|
+      # build the hash using class methods that use 0 queries
       @availability_hash[em.id] =
-        [EquipmentObject.for_eq_model(em.id, eq_objects)\
+        [EquipmentItem.for_eq_model(em.id, eq_items)\
         - Reservation.number_overdue_for_eq_model(em.id, source_reservations)\
         - em.num_reserved(cart.start_date, cart.due_date, source_reservations)\
         - cart.items[em.id].to_i, 0].max
+
+      # have requirements as part of equipment model itself
+      restricted = em.model_restricted?(cart.reserver_id)
+      if restricted
+        @qualifications_hash[em.id] = Requirement.list_requirement_admins(
+          reserver, em).html_safe
+      end
     end
+
     @page_eq_models_by_category = eq_models
   end
   # rubocop:enable MethodLength, AbcSize
@@ -260,13 +278,13 @@ class ApplicationController < ActionController::Base
   # activate and deactivate are overridden in the users controller because
   # users are activated and deactivated differently
   def deactivate
-    authorize! :deactivate, :objects
-    # Finds the current model (EM, EO, Category)
-    @objects_class2 =
+    authorize! :deactivate, :items
+    # Finds the current model (EM, EI, Category)
+    @items_class2 =
       params[:controller].singularize.titleize.delete(' ')
       .constantize.find(params[:id])
     # Deactivate the model you had originally intended to deactivate
-    @objects_class2.destroy
+    @items_class2.destroy
     flash[:notice] = 'Successfully deactivated '\
                    + params[:controller].singularize.titleize\
                    + '. Any related equipment has been deactivated as well.'
@@ -274,8 +292,8 @@ class ApplicationController < ActionController::Base
   end
 
   def activate
-    authorize! :activate, :objects
-    # Finds the current model (EM, EO, Category)
+    authorize! :activate, :items
+    # Finds the current model (EM, EI, Category)
     @model_to_activate =
       params[:controller].singularize.titleize.delete(' ')
       .constantize.find(params[:id])

@@ -12,7 +12,7 @@ class User < ActiveRecord::Base
   if ENV['CAS_AUTH']
     devise :cas_authenticatable
   else
-    devise :database_authenticatable, :recoverable
+    devise :database_authenticatable, :recoverable, :rememberable
   end
 
   has_many :reservations, foreign_key: 'reserver_id', dependent: :destroy
@@ -36,8 +36,11 @@ class User < ActiveRecord::Base
   validates :email,
             presence: true, uniqueness: true,
             format: { with: /\A([\w\.%\+\-]+)@([\w\-]+\.)+([\w]{2,})\z/i }
+  # validations for CAS authentication
+  if ENV['CAS_AUTH']
+    validates :cas_login, presence: true, uniqueness: true
   # validations for password authentication
-  unless ENV['CAS_AUTH']
+  else
     # only run password validatons if the parameter is present
     validates :password,  presence: true,
                           length: { minimum: 8 },
@@ -64,8 +67,7 @@ class User < ActiveRecord::Base
 
   # ------- validations -------- #
   def skip_phone_validation?
-    return true unless AppConfig.first
-    return true unless AppConfig.first.require_phone
+    return true unless AppConfig.check(:require_phone)
     return true if missing_phone
     !@csv_import.nil?
   end
@@ -81,8 +83,8 @@ class User < ActiveRecord::Base
     "#{(nickname.blank? ? first_name : nickname)} #{last_name}"
   end
 
-  def equipment_objects
-    reservations.collect(&:equipment_object).flatten
+  def equipment_items
+    reservations.collect(&:equipment_item).flatten
   end
 
   # rubocop:disable AbcSize, MethodLength, PerceivedComplexity
