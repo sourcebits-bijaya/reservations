@@ -4,10 +4,12 @@
 
 ## v5.3.0 - 2015-05-11
 ### Fixed
+* Fixed issues with reservation renewals and added tests ([#416](https://github.com/YaleSTC/reservations/issues/416), [#1218](https://github.com/YaleSTC/reservations/issues/1218)).
 * Reservation scopes refactored ([#462](https://github.com/YaleSTC/reservations/issues/462)).
 
 ### Added
-* Reservation flags ([see wiki](https://github.com/YaleSTC/reservations/wiki/Reservation-Flags)).
+* Added integration tests for basic reservation actions and Rails Admin routes ([#416](https://github.com/YaleSTC/reservations/issues/416)).
+* Reservation flags ([see wiki](https://github.com/YaleSTC/reservations/wiki/Reservation-Flags), [#462](https://github.com/YaleSTC/reservations/issues/462)).
 * Added quantity fields to cart items ([#1114](https://github.com/YaleSTC/reservations/issues/1114)).
 
 ### Changed
