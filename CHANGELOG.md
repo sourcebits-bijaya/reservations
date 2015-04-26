@@ -7,6 +7,8 @@
 * Fixed issues with reservation renewals and added tests ([#416](https://github.com/YaleSTC/reservations/issues/416), [#1218](https://github.com/YaleSTC/reservations/issues/1218)).
 * Reservation scopes refactored ([#462](https://github.com/YaleSTC/reservations/issues/462)).
 * Fixed broken calendar logic ([#1218](https://github.com/YaleSTC/reservations/issues/1218)).
+* Forgetting to check off the ToS checkbox during checkout no longer causes checkout to fail silently ([#1227](https://github.com/YaleSTC/reservations/issues/1227)).
+* ToS acceptance is no longer saved if checkout doesn't succeed ([#1227](https://github.com/YaleSTC/reservations/issues/1227)).
 
 ### Added
 * Added integration tests for basic reservation actions and Rails Admin routes ([#416](https://github.com/YaleSTC/reservations/issues/416)).
