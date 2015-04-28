@@ -127,6 +127,10 @@ class ReservationsController < ApplicationController
         end
       end
 
+      @cart = cart
+
+# :items, :start_date, :due_date, :reserver_id
+
       # this is used to initialize each reservation later
       @reservation = Reservation.new(start_date: cart.start_date,
                                      due_date: cart.due_date,

@@ -18,3 +18,29 @@
     <%= link_to "Return to Catalog", catalog_path, class: 'btn btn-default' %>
   </div>
 </div>
+
+<%= simple_form_for @cart, url: url_for(action: 'edit_reservation_form', method: 'post', controller: 'catalog') do |f| %>
+
+
+<!-- This part isn't quite done yet -->
+  <%= autocomplete_field_tag 'fake_reserver_id',
+          cart.reserver_id == current_user.id ? '' : User.find(cart.reserver_id).render_name,
+          autocomplete_user_last_name_users_path,
+          size: 30,
+          placeholder: current_user.render_name,
+          id_element: "#reserver_id",
+          class: 'submittable form-control' %>
+
+    <%= label_tag :start_date, 'Start Date' %>
+    <%= text_field "cart", "start_date_cart", class: 'submittable form-control date_start', value: cart.start_date.strftime('%m/%d/%Y') %>
+    <%= hidden_field_tag "cart[start_date_cart]", cart.start_date, id: 'date_start_alt' %>
+
+    <%= label_tag :due_date, 'Due Date' %>
+    <%= text_field "cart", "due_date_cart", class: 'submittable form-control date_end', value: cart.due_date.strftime('%m/%d/%Y'), minDate: cart.start_date.strftime('%m/%d/%Y') %>
+    <%= hidden_field_tag "cart[due_date_cart]", cart.due_date, id: 'date_end_alt' %>
+  <hr>
+
+  <%= f.input :start_date, 'Start Date' %>
+    <%= f.button :submit, "Finalize Reservation" %>
+  <%= link_to "Return to Catalog", catalog_path, class: 'btn btn-default' %>
+<% end %>

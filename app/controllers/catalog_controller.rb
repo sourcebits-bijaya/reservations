@@ -41,6 +41,14 @@ class CatalogController < ApplicationController
     end
   end
 
+  def submit_form
+    @cart = Cart.new
+    #edit dates
+    # [:cart][start_date]
+    # [:cart][:items][id?]
+    #for each item change cart
+  end
+
   def search
     if params[:query].blank?
       redirect_to(root_path) && return
