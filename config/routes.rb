@@ -123,7 +123,7 @@ Reservations::Application.routes.draw do
       :as => :edit_cart_item
   # delete '/cart/empty' => 'application#empty_cart', :as => :empty_cart
   # put '/cart/update' => 'application#update_cart', :as => :update_cart
-  post '/edit_reservation_form' => 'catalog#submit_form',
+  post'/edit_reservation_form' => 'catalog#submit_form',
       :as => :submit_form
 
   get '/reports/index' => 'reports#index', :as => :reports

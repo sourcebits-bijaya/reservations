@@ -42,11 +42,56 @@ class CatalogController < ApplicationController
   end
 
   def submit_form
-    @cart = Cart.new
+    cart = session[:cart]
+    flash.clear
+    begin
+      puts "Original Cart"
+      puts "CART START DATE: "
+      puts cart.start_date
+      puts "CART DUE DATE"
+      puts cart.due_date
+      cart.start_date = Date.strptime(params[:form][:start_date], '%m/%d/%Y')
+      cart.due_date = Date.strptime(params[:form][:due_date], '%m/%d/%Y')
+      puts "REVISED CART"
+      puts "CART START DATE: "
+      puts cart.start_date
+      puts "CART DUE DATE"
+      puts cart.due_date
+      cart.fix_due_date
+      cart.reserver_id =
+        if params[:reserver_id].blank?
+          cart.reserver_id = current_or_guest_user.id
+        else
+          params[:reserver_id]
+        end
+      session[:cart]= cart
+    rescue ArgumentError
+      #cart.start_date = Time.zone.today #leave it as is, don't touch current date
+      flash[:error] = 'Please enter a valid start or due date.'
+    end
+
+    # get soft blackout notices
+    notices = []
+    notices << Blackout.get_notices_for_date(cart.start_date, :soft)
+    notices << Blackout.get_notices_for_date(cart.due_date, :soft)
+    notices = notices.reject(&:blank?).to_sentence
+    notices += "\n" unless notices.blank?
+
+    # validate
+    errors = cart.validate_all
+    # don't over-write flash if invalid date was set above
+    flash[:error] ||= notices + "\n" + errors.join("\n")
+    flash[:notice] = 'Reservation updated.'
+
+    # reload appropriate divs / exit
+    # prepare_catalog_index_vars if params[:controller] == 'catalog'
+
+    # @cart = Cart.new
     #edit dates
     # [:cart][start_date]
     # [:cart][:items][id?]
     #for each item change cart
+    redirect_to new_reservation_path
   end
 
   def search
