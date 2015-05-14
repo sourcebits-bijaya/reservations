@@ -42,9 +42,11 @@ class CatalogController < ApplicationController
   end
 
   def submit_form
+    puts session[:cart].reserver_id
     cart = session[:cart]
     flash.clear
     begin
+      #set the start and end date to updated values
       puts "Original Cart"
       puts "CART START DATE: "
       puts cart.start_date
@@ -52,19 +54,15 @@ class CatalogController < ApplicationController
       puts cart.due_date
       cart.start_date = Date.strptime(params[:form][:start_date], '%m/%d/%Y')
       cart.due_date = Date.strptime(params[:form][:due_date], '%m/%d/%Y')
+      puts params.keys
+      puts params.values
       puts "REVISED CART"
       puts "CART START DATE: "
       puts cart.start_date
       puts "CART DUE DATE"
       puts cart.due_date
+
       cart.fix_due_date
-      cart.reserver_id =
-        if params[:reserver_id].blank?
-          cart.reserver_id = current_or_guest_user.id
-        else
-          params[:reserver_id]
-        end
-      session[:cart]= cart
     rescue ArgumentError
       #cart.start_date = Time.zone.today #leave it as is, don't touch current date
       flash[:error] = 'Please enter a valid start or due date.'
@@ -77,20 +75,21 @@ class CatalogController < ApplicationController
     notices = notices.reject(&:blank?).to_sentence
     notices += "\n" unless notices.blank?
 
+    #update all the items in the cart
+    for i in 0..(params[:quantity].count-1)
+      #make sure the quantity changed to prevent extra load on server
+      if cart.items[params[:quantity].keys[i].to_i]!= params[:quantity].values[i].to_i
+        @equipment_model = EquipmentModel.find(params[:quantity].keys[i].to_i)
+        cart.send(:edit_cart_item, @equipment_model, params[:quantity].values[i].to_i)
+      end
+    end
+
     # validate
     errors = cart.validate_all
     # don't over-write flash if invalid date was set above
     flash[:error] ||= notices + "\n" + errors.join("\n")
     flash[:notice] = 'Reservation updated.'
 
-    # reload appropriate divs / exit
-    # prepare_catalog_index_vars if params[:controller] == 'catalog'
-
-    # @cart = Cart.new
-    #edit dates
-    # [:cart][start_date]
-    # [:cart][:items][id?]
-    #for each item change cart
     redirect_to new_reservation_path
   end
 

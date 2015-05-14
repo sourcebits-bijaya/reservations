@@ -44,7 +44,7 @@
         <tr>
           <td id="quantity_col">
 
-              <%= number_field_tag("quantity_#{model_id}", quantity, class: 'submittable form-control quantity', min: 0, step: 1, id: "quantity_field_#{model_id}") %>
+              <%= number_field_tag("quantity[#{model_id}]", quantity, class: 'submittable form-control quantity', min: 0, step: 1, id: "quantity_field_#{model_id}") %>
 
           </td>
           <td>
