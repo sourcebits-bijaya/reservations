@@ -10,29 +10,33 @@
     </ul>
   <% end %>
 <% end %>
+
+<p>
+  <h3>Equipment requested:</h3>
+</p>
+
+<p>
+  The following equipment will be requested for
+  <%= User.find(cart.reserver_id).name %>
+  from
+  <b><%= cart.start_date.to_s(:long) %></b> to
+  <b><%= cart.due_date.to_s(:long) %></b>:
+</p>
+<p>
+  <ul class="rounded-list">
+    <% cart.items.each do |model_id, quantity| %>
+      <li data-value="<%= quantity %>"><%= link_to EquipmentModel.find(model_id).name, EquipmentModel.find(model_id) %></li>
+    <% end %>
+    </button>
+  </ul>
+</p>
+
+<button type="button" class="btn btn-warning btn-lg edit_reservation">
+  <%= 'Edit Reservation'.titleize %>
+</button>
+<br>
+
 <div class="new_reservation_info">
-  <p>
-    <h3>Equipment requested:</h3>
-  </p>
-
-  <p>
-    The following equipment will be requested for
-    <%= User.find(cart.reserver_id).name %>
-    from
-    <b><%= cart.start_date.to_s(:long) %></b> to
-    <b><%= cart.due_date.to_s(:long) %></b>:
-  </p>
-  <p>
-    <ul class="rounded-list">
-      <% cart.items.each do |model_id, quantity| %>
-        <li data-value="<%= quantity %>"><%= link_to EquipmentModel.find(model_id).name, EquipmentModel.find(model_id) %></li>
-      <% end %>
-      <button type="button" class="btn btn-warning btn-lg edit_reservation"> <!-- edit reservation button -->
-        <%= 'Edit Reservation'.titleize %>
-      </button>
-    </ul>
-  </p>
-
   <div class="well">
     <%= markdown(@request_text) %>
   </div>
@@ -48,5 +52,5 @@
     </div>
   <% end %>
 </div>
-
+<% # edit reservation %>
 <%= render partial: 'reservations/edit_reservation_form' %>

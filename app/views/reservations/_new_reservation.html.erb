@@ -16,43 +16,43 @@
   </div>
 <% end %>
 
+
+<p>
+  <h3>Equipment being reserved:</h3>
+</p>
+<p>
+  The following equipment will be reserved by
+  <%= link_to User.find(cart.reserver_id).name, User.find(cart.reserver_id),
+  target: '_blank' %>
+  from
+  <b><%= cart.start_date.to_s(:long) %></b> to
+  <b><%= cart.due_date.to_s(:long) %></b>:
+</p>
+
+
+<ul class="rounded-list">
+  <% cart.items.each do |model_id, quantity| %>
+    <li data-value="<%= quantity %>">
+      <%= link_to EquipmentModel.find(model_id).name, EquipmentModel.find(model_id) %>
+    </li>
+  <% end %>
+</ul>
+
+<button type="button" class="btn btn-warning btn-lg edit_reservation">
+  <%= 'Edit Reservation'.titleize %>
+</button>
+<br>
+<br>
 <div class="new_reservation_info">
-  <p>
-    <h3>Equipment being reserved:</h3>
-  </p>
-  <p>
-    The following equipment will be reserved by
-    <%= link_to User.find(cart.reserver_id).name, User.find(cart.reserver_id),
-    target: '_blank' %>
-    from
-    <b><%= cart.start_date.to_s(:long) %></b> to
-    <b><%= cart.due_date.to_s(:long) %></b>:
-  </p>
-
-  <p>
-    <ul class="rounded-list">
-      <% cart.items.each do |model_id, quantity| %>
-        <li data-value="<%= quantity %>">
-          <%= link_to EquipmentModel.find(model_id).name, EquipmentModel.find(model_id) %>
-        </li>
-      <% end %>
-      <button type="button" class="btn btn-warning btn-lg edit_reservation"> <!-- edit reservation button -->
-        <%= 'Edit Reservation'.titleize %>
-      </button>
-    </ul>
-  </p>
-
-
   <%= simple_form_for @reservation do |f| %>
     <div class="form-group text<%= ' error' if @notes_required %>">
       <%= f.label :notes, "#{@errors.blank? ? 'Optional notes' : 'Justification for error override'} for this reservation:" %>
       <%= f.input_field :notes, class: 'form-control', rows: 5 %>
     </div>
-
     <hr>
     <%= f.button :submit, "Finalize Reservation" %>
     <%= link_to "Return to Catalog", catalog_path, class: 'btn btn-default' %>
   <% end %>
 </div>
-<%# edit reservation %>
+<% # edit reservation %>
 <%= render partial: 'reservations/edit_reservation_form' %>

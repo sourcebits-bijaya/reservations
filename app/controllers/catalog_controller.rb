@@ -1,3 +1,4 @@
+# rubocop:disable ClassLength
 class CatalogController < ApplicationController
   layout 'application_with_sidebar'
 
@@ -41,30 +42,14 @@ class CatalogController < ApplicationController
     end
   end
 
-  def submit_form
-    puts session[:cart].reserver_id
-    cart = session[:cart]
+  def submit_form # rubocop:disable MethodLength, AbcSize
     flash.clear
     begin
-      #set the start and end date to updated values
-      puts "Original Cart"
-      puts "CART START DATE: "
-      puts cart.start_date
-      puts "CART DUE DATE"
-      puts cart.due_date
+      # set the start and end date to updated values
       cart.start_date = Date.strptime(params[:form][:start_date], '%m/%d/%Y')
       cart.due_date = Date.strptime(params[:form][:due_date], '%m/%d/%Y')
-      puts params.keys
-      puts params.values
-      puts "REVISED CART"
-      puts "CART START DATE: "
-      puts cart.start_date
-      puts "CART DUE DATE"
-      puts cart.due_date
-
       cart.fix_due_date
     rescue ArgumentError
-      #cart.start_date = Time.zone.today #leave it as is, don't touch current date
       flash[:error] = 'Please enter a valid start or due date.'
     end
 
@@ -74,13 +59,14 @@ class CatalogController < ApplicationController
     notices << Blackout.get_notices_for_date(cart.due_date, :soft)
     notices = notices.reject(&:blank?).to_sentence
     notices += "\n" unless notices.blank?
-
-    #update all the items in the cart
-    for i in 0..(params[:quantity].count-1)
-      #make sure the quantity changed to prevent extra load on server
-      if cart.items[params[:quantity].keys[i].to_i]!= params[:quantity].values[i].to_i
-        @equipment_model = EquipmentModel.find(params[:quantity].keys[i].to_i)
-        cart.send(:edit_cart_item, @equipment_model, params[:quantity].values[i].to_i)
+    # update all the items in the cart
+    (0..(params[:quantity].count - 1)).each do |i|
+      @quantity = params[:quantity].values[i].to_i
+      @model_id = params[:quantity].keys[i].to_i
+      # make sure the quantity changed before looking for Models
+      if cart.items[@model_id] != @quantity
+        @equipment_model = EquipmentModel.find(@model_id)
+        cart.send(:edit_cart_item, @equipment_model, @quantity)
       end
     end
 
@@ -89,7 +75,6 @@ class CatalogController < ApplicationController
     # don't over-write flash if invalid date was set above
     flash[:error] ||= notices + "\n" + errors.join("\n")
     flash[:notice] = 'Reservation updated.'
-
     redirect_to new_reservation_path
   end
 

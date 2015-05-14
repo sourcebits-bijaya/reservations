@@ -1,61 +1,42 @@
-<!-- TODO: CART EMPTY ISN't WORKING -->
 <div class="edit_reservation_form well hidden">
   <div id="cartSpinner"></div>
   <header class="cart-header">
      <h2>Reservation Details</h2>
   </header>
-  <% # allow user to set start/end dates %>
-  <%= render partial: 'reservations/cart_dates' %>
-  <h3>Items</h3>
-  <% # list items in cart %>
-  <%= render partial: 'reservations/list_items_in_cart' %>
-  <div id="cart_buttons">
-    <% # print Update reservation button %>
-    <% #  User should already be logged in so don't need sign in %>
-    <%= link_to new_reservation_path, class: 'btn btn-success' do %>
-      <%= 'Update Reservation'.titleize %>
-    <% end %>
-    <%= link_to "Return to Catalog", catalog_path, class: 'btn btn-default' %>
-  </div>
-</div>
-
-<form action="/edit_reservation_form" method="POST">
-<!-- This part isn't quite done yet -->
-
-      <div class="cart_reserver">
-        <%= hidden_field_tag 'reserver_id', cart.reserver.id  %>
-      </div>
+  <%= form_tag url_for(controller: 'catalog', action: 'submit_form'), class: 'form-vertical', method: :post do %>
+    <div class="cart_reserver">
+      <%= hidden_field_tag 'reserver_id', cart.reserver.id  %>
+    </div>
     <%= label_tag :start_date, 'Start Date' %>
     <%= text_field "form", "start_date", class: 'submittable form-control date_start', value: cart.start_date.strftime('%m/%d/%Y') %>
-
     <%= label_tag :due_date, 'Due Date' %>
     <%= text_field "form", "due_date", class: 'submittable form-control date_end', value: cart.due_date.strftime('%m/%d/%Y'), minDate: cart.start_date.strftime('%m/%d/%Y') %>
 
-    <!-- items in reservation -->
-    <!-- Plan: Submit all the quantities. Then read and update all of them at once.  -->
-    <!-- How do I handle changing number of form elmeents? -->
+    <% # items in reservation %>
+    <h4>Items</h4>
+    <div id="list_items_in_cart">
       <% if cart.items.empty? %>
-    <span id="cart_is_empty">(empty)</span>
-    <!-- if the cart is not empty -->
-  <% else %>
-    <table id="table_list_items" class="table table-bordered table-striped table-condensed table-hover">
-      <% cart.items.each do |model_id, quantity| %>
-      <!-- for each item in the cart, list out the quantity and the name -->
-        <tr>
-          <td id="quantity_col">
-
-              <%= number_field_tag("quantity[#{model_id}]", quantity, class: 'submittable form-control quantity', min: 0, step: 1, id: "quantity_field_#{model_id}") %>
-
-          </td>
-          <td>
-            <%= link_to EquipmentModel.find(model_id).name, EquipmentModel.find(model_id) %>
-          </td>
-        </tr>
+        <span id="cart_is_empty">(empty)</span>
+      <% else %>
+        <table id="table_list_items" class="table table-bordered table-striped table-condensed table-hover">
+          <% cart.items.each do |model_id, quantity| %>
+            <% # for each item in the cart, list out the quantity and the name %>
+            <tr>
+              <td id="quantity_col">
+                  <%= number_field_tag("quantity[#{model_id}]", quantity, class: 'submittable form-control quantity', min: 0, step: 1, id: "quantity_field_#{model_id}") %>
+              </td>
+              <td>
+                <%= link_to EquipmentModel.find(model_id).name, EquipmentModel.find(model_id) %>
+              </td>
+            </tr>
+          <% end %>
+        </table>
       <% end %>
-    </table>
+    </div>
+    <hr>
+    <input type="submit" value="Update Reservation" class= 'btn btn-success'>
+    <%= link_to "Return to Catalog", catalog_path, class: 'btn btn-default' %>
   <% end %>
+</div>
 
-  <hr>
-    <input type="submit" value="Finalize Reservation" class= 'btn btn-success'>
-  <%= link_to "Return to Catalog", catalog_path, class: 'btn btn-default' %>
-</form>
+
