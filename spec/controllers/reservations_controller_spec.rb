@@ -861,7 +861,6 @@ describe ReservationsController, type: :controller do
         get :manage, user_id: @banned.id
       end
       include_examples 'can access #manage'
-
     end
   end
 
