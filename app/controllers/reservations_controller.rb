@@ -373,7 +373,7 @@ class ReservationsController < ApplicationController
 
   def manage # initializer
     if params[:banned] && current_user.view_mode != 'superuser'
-      redirect_to(root_path) && return
+    #  redirect_to(root_path) && return
     end
     @check_out_set = @user.due_for_checkout
     @check_in_set = @user.due_for_checkin
