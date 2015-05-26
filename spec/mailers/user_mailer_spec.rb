@@ -60,7 +60,7 @@ describe UserMailer, type: :mailer do
     it 'sends approved request notifications' do
       @res.update_attributes(status: 'reserved',
                              flags: Reservation::FLAGS[:request])
-      @mail = UserMailer.reservation_status_update(@res).deliver
+      @mail = UserMailer.reservation_status_update(@res, true).deliver
       expect(@mail.subject).to eq(
         "[Reservations] #{@res.equipment_model.name} Request Approved")
     end
@@ -70,7 +70,7 @@ describe UserMailer, type: :mailer do
                              flags: Reservation::FLAGS[:request],
                              start_date: Time.zone.today,
                              due_date: Time.zone.today + 1)
-      @mail = UserMailer.reservation_status_update(@res).deliver
+      @mail = UserMailer.reservation_status_update(@res, true).deliver
       expect(@mail.subject).to eq(
         "[Reservations] #{@res.equipment_model.name} Request Approved")
     end

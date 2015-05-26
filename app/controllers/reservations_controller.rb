@@ -435,7 +435,7 @@ class ReservationsController < ApplicationController
       "by #{current_user.md_link}"
     if @reservation.save
       flash[:notice] = 'Request successfully approved'
-      UserMailer.reservation_status_update(@reservation).deliver
+      UserMailer.reservation_status_update(@reservation, true).deliver
       redirect_to reservations_path(requested: true)
     else
       flash[:error] = 'Oops! Something went wrong. Unable to approve '\
