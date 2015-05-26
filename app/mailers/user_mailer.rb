@@ -40,7 +40,7 @@ class UserMailer < ActionMailer::Base
     mail(to: @reservation.reserver.email,
          subject: '[Reservations] ' \
                   "#{@reservation.equipment_model.name.capitalize} "\
-                  " #{status_formatted}")
+                  "#{status_formatted}")
   end
 
   private
