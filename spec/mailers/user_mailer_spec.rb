@@ -65,6 +65,16 @@ describe UserMailer, type: :mailer do
         "[Reservations] #{@res.equipment_model.name} Request Approved")
     end
 
+    it 'sends approved request notifications for requests starting today' do
+      @res.update_attributes(status: 'reserved',
+                             flags: Reservation::FLAGS[:request],
+                             start_date: Time.zone.today,
+                             due_date: Time.zone.today + 1)
+      @mail = UserMailer.reservation_status_update(@res).deliver
+      expect(@mail.subject).to eq(
+        "[Reservations] #{@res.equipment_model.name} Request Approved")
+    end
+
     it 'sends reminders to check-out' do
       @res.update_attributes(
         FactoryGirl.attributes_for(:upcoming_reservation))
