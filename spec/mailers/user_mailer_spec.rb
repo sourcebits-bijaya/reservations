@@ -60,7 +60,7 @@ describe UserMailer, type: :mailer do
     it 'sends approved request notifications' do
       @res.update_attributes(status: 'reserved',
                              flags: Reservation::FLAGS[:request])
-      @mail = UserMailer.reservation_status_update(@res, true).deliver
+      @mail = UserMailer.reservation_status_update(@res).deliver
       expect(@mail.subject).to eq(
         "[Reservations] #{@res.equipment_model.name} Request Approved")
     end
@@ -70,7 +70,8 @@ describe UserMailer, type: :mailer do
                              flags: Reservation::FLAGS[:request],
                              start_date: Time.zone.today,
                              due_date: Time.zone.today + 1)
-      @mail = UserMailer.reservation_status_update(@res, true).deliver
+      @mail = UserMailer.reservation_status_update(@res,
+                                                   'request approved').deliver
       expect(@mail.subject).to eq(
         "[Reservations] #{@res.equipment_model.name} Request Approved")
     end
@@ -93,7 +94,7 @@ describe UserMailer, type: :mailer do
     it 'sends check-out receipts' do
       @res.update_attributes(
         FactoryGirl.attributes_for(:checked_out_reservation))
-      @mail = UserMailer.reservation_status_update(@res, true).deliver
+      @mail = UserMailer.reservation_status_update(@res).deliver
       expect(@mail.subject).to eq(
         "[Reservations] #{@res.equipment_model.name} Checked Out")
     end
@@ -102,7 +103,7 @@ describe UserMailer, type: :mailer do
       @res.update_attributes(
         FactoryGirl.attributes_for(:valid_reservation))
       expect(@res.checked_out).to be_nil
-      @mail = UserMailer.reservation_status_update(@res, true).deliver
+      @mail = UserMailer.reservation_status_update(@res, 'checked out').deliver
       expect(@mail).to be_nil
     end
 
@@ -110,14 +111,14 @@ describe UserMailer, type: :mailer do
       @res.update_attributes(
         FactoryGirl.attributes_for(:checked_out_reservation,
                                    due_date: Time.zone.today))
-      @mail = UserMailer.reservation_status_update(@res, true).deliver
+      @mail = UserMailer.reservation_status_update(@res, 'checked out').deliver
       expect(@mail.subject).to eq(
         "[Reservations] #{@res.equipment_model.name} Checked Out")
     end
 
     it 'sends check-out receipts for overdue reservations' do
       @res.update_attributes(FactoryGirl.attributes_for(:overdue_reservation))
-      @mail = UserMailer.reservation_status_update(@res, true).deliver
+      @mail = UserMailer.reservation_status_update(@res, 'checked out').deliver
       expect(@mail.subject).to eq(
         "[Reservations] #{@res.equipment_model.name} Checked Out")
     end
@@ -152,6 +153,14 @@ describe UserMailer, type: :mailer do
       @mail = UserMailer.reservation_status_update(@res).deliver
       expect(@mail.subject).to eq(
         "[Reservations] #{@res.equipment_model.name} Returned Overdue")
+    end
+
+    it "doesn't send fine emails when there is no late fee" do
+      @res.update_attributes(FactoryGirl.attributes_for(:checked_in_reservation,
+                                                        :overdue))
+      @res.equipment_model.update_attributes(late_fee: 0)
+      @mail = UserMailer.reservation_status_update(@res).deliver
+      expect(@mail).to be_nil
     end
   end
 end
