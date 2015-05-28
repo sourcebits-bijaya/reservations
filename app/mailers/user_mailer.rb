@@ -9,8 +9,8 @@ class UserMailer < ActionMailer::Base
   end
 
   # checks the status of the current reservation and sends the appropriate email
-  # force forces a check out receipt to be sent OR an approved request notification,
-  # depending on the reservation status
+  # force forces a check out receipt to be sent OR an approved request email,
+  # (depending on the reservation status)
   def reservation_status_update(reservation, force = false) # rubocop:disable all
     set_app_config
 
@@ -20,7 +20,8 @@ class UserMailer < ActionMailer::Base
     return if !force && @status == 'returned' && @reservation.overdue &&
               @reservation.equipment_model.late_fee == 0
 
-    return if force && (@reservation.checked_out.nil? && !@reservation.approved?)
+    return if force &&
+              (@reservation.checked_out.nil? && !@reservation.approved?)
 
     if force
       if @reservation.checked_out
