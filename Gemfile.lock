@@ -159,6 +159,7 @@ GEM
       rspec (>= 2.99.0, < 4.0)
     haml (4.0.6)
       tilt
+    highline (1.7.2)
     hike (1.2.3)
     hitimes (1.2.2)
     http_parser.rb (0.6.0)
@@ -439,6 +440,7 @@ DEPENDENCIES
   fuubar (~> 2.0.0)
   guard-livereload (~> 2.4.0)
   guard-rspec (~> 4.5.0)
+  highline (~> 1.7.2)
   inline_svg
   jquery-datatables-rails (~> 3.1.1)
   jquery-rails (~> 3.1.2)
