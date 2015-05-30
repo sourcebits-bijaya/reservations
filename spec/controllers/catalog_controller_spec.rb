@@ -54,6 +54,51 @@ describe CatalogController, type: :controller do
       end
     end
   end
+  describe 'POST submit_form' do
+    before(:each) do
+      @equipment_model = FactoryGirl.create(:equipment_model)
+      put :add_to_cart, id: @equipment_model.id
+    end
+    it 'should set new dates' do
+      @params = { form: { start_date: Date.tomorrow.strftime('%m/%d/%Y'),
+                          due_date: (Date.tomorrow + 1).strftime('%m/%d/%Y') },
+                  quantity: { @equipment_model.id => 1 },
+                  reserver_id: @user.id }
+      post :submit_form, @params
+      expect(session[:cart].start_date).to eq(Date.tomorrow)
+      expect(session[:cart].due_date).to eq(Date.tomorrow + 1)
+    end
+
+    it 'should adjust item quantity' do
+      # check if cart contains an item
+      expect session[:cart].items
+      @params = { form: { start_date: Date.tomorrow.strftime('%m/%d/%Y'),
+                          due_date: (Date.tomorrow + 1).strftime('%m/%d/%Y') },
+                  quantity: { @equipment_model.id => 0 },
+                  reserver_id: @user.id }
+      post :submit_form, @params
+      # should remove the item after setting quantity to 0
+      expect(session[:cart].items).to be_empty
+    end
+
+    it 'should set flash if invalid date' do
+      @params = { form: { start_date: Date.yesterday.strftime('%m/%d/%Y'),
+                          due_date: Date.today.strftime('%m/%d/%Y') },
+                  quantity: { @equipment_model.id => 0 },
+                  reserver_id: @user.id }
+      post :submit_form, @params
+      expect(flash[:alert]).not_to be_nil
+      expect(session[:cart].start_date).not_to eq(Date.yesterday)
+    end
+
+    # test 1: set date to due one day after and begin 1 day after.
+    # test 2: remove an item
+    # test 3: invalid date and flash
+    # at the end redirect to new reservation page.
+
+    # it { is_expected.to redirect_to(new_reservation_path) }
+  end
+
   describe 'PUT update_user_per_cat_page' do
     before(:each) do
       put :update_user_per_cat_page

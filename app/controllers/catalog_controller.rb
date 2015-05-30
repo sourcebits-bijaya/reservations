@@ -46,11 +46,19 @@ class CatalogController < ApplicationController
     flash.clear
     begin
       # set the start and end date to updated values
-      cart.start_date = Date.strptime(params[:form][:start_date], '%m/%d/%Y')
-      cart.due_date = Date.strptime(params[:form][:due_date], '%m/%d/%Y')
+      # expects date in format MM/DD/YYYY or MM/DD/YY
+      start_date = Date.strptime(params[:form][:start_date], '%m/%d/%Y')
+      due_date = Date.strptime(params[:form][:due_date], '%m/%d/%Y')
+      # Wcan't change the past
+      unless start_date >= Date.today && due_date >= Date.today
+        fail ArgumentError
+      end
+      cart.start_date = start_date
+      cart.due_date = due_date
       cart.fix_due_date
+      flash[:notice] = 'Reservation updated.'
     rescue ArgumentError
-      flash[:error] = 'Please enter a valid start or due date.'
+      flash[:alert] = 'Please enter a valid start or due date.'
     end
 
     # get soft blackout notices
@@ -70,11 +78,9 @@ class CatalogController < ApplicationController
       end
     end
 
-    # validate
-    errors = cart.validate_all
     # don't over-write flash if invalid date was set above
-    flash[:error] ||= notices + "\n" + errors.join("\n")
-    flash[:notice] = 'Reservation updated.'
+    flash[:alert] ||= notices + "\n"
+
     redirect_to new_reservation_path
   end
 
