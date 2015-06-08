@@ -13,6 +13,7 @@
 * The Reservation#approved? method now correctly returns false for open requests ([#1267](https://github.com/YaleSTC/reservations/issues/1267)).
 
 ### Added
+* Added the ability to view returned overdue reservations from the reservations index page along with their late fees ([#1121](https://github.com/YaleSTC/reservations/issues/1121)).
 * Added integration tests for basic reservation actions and Rails Admin routes ([#416](https://github.com/YaleSTC/reservations/issues/416)).
 * Added Reservation flags for various attributes ([see wiki](https://github.com/YaleSTC/reservations/wiki/Reservation-Flags), [#462](https://github.com/YaleSTC/reservations/issues/462)).
 * Added quantity fields to cart items ([#1114](https://github.com/YaleSTC/reservations/issues/1114)).
