@@ -4,6 +4,7 @@
 
 ## v5.3.0 - 2015-05-11
 ### Fixed
+* Fixed visibility issue with autocomplete selection ([#1251](https://github.com/YaleSTC/reservations/issues/1251)).
 * Fixed issues with reservation renewals and added tests ([#416](https://github.com/YaleSTC/reservations/issues/416), [#1218](https://github.com/YaleSTC/reservations/issues/1218)).
 * Reservation scopes refactored ([#462](https://github.com/YaleSTC/reservations/issues/462)).
 * Equipment Items and other deactivate-able resources can now be destroyed using Rails Admin ([#1062](https://github.com/YaleSTC/reservations/issues/1062)).
