@@ -184,8 +184,9 @@ describe 'Reservations', type: :feature do
     shared_examples 'can handle banned user reservation transactions' do
       it 'checks in successfully' do
         # check in
-        @checked_out_res = FactoryGirl.create :checked_out_reservation, reserver: @user,
-                                                    equipment_model: @eq_model
+        @checked_out_res = FactoryGirl.create :checked_out_reservation,
+                                              reserver: @user,
+                                              equipment_model: @eq_model
         @user.role = 'banned'
         @user.save
         visit manage_reservations_for_user_path(@user)
@@ -200,7 +201,7 @@ describe 'Reservations', type: :feature do
       end
       it 'cannot checkout out successfully' do
         @res = FactoryGirl.create :valid_reservation, reserver: @user,
-                                                    equipment_model: @eq_model
+                                                      equipment_model: @eq_model
         @user.role = 'banned'
         @user.save
         # check out
@@ -231,7 +232,6 @@ describe 'Reservations', type: :feature do
 
       it_behaves_like 'can handle banned user reservation transactions'
     end
-
   end
 
   context 'equipment processing' do
