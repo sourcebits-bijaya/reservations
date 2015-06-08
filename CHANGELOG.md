@@ -20,6 +20,7 @@
 
 ### Changed
 * Reservation approval status and status method are now consolidated into a status enum ([#462](https://github.com/YaleSTC/reservations/issues/462)).
+* TOS checkbox on checkout/checkin page moved to the left of the notice text for increased salience and UX consistency ([#1259](https://github.consistencom/YaleSTC/reservations/issues/1259))
 
 ## v5.2.2 - 2015-04-20
 ### Fixed
